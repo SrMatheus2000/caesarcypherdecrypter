@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Grid, Typography, Button, Paper, Box, TextField } from '@material-ui/core';
-import './App.css';
 
 function shiftUp(s, k) {
   let n = 26;
@@ -64,7 +63,7 @@ function App() {
   const [mono, setMono] = useState([])
 
   useEffect(() => {
-    criaDicionarios(readTextFile('dicionario.txt'));
+    criaDicionarios(readTextFile('dicionario.dic'));
   }, [])
 
   function criaDicionarios(palavras) {
