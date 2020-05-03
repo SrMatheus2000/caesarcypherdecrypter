@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid, Typography, Button, Paper, Box, TextField } from '@material-ui/core';
 import './App.css';
 
@@ -45,8 +45,16 @@ function swap(chars, i, j) {
   chars[j] = tmp;
 }
 
-function App() {
+function readTextFile(file) {
+  const rawFile = new XMLHttpRequest();
+  rawFile.open("GET", file, false);
+  let test
+  rawFile.onreadystatechange = () => test = rawFile.responseText
+  rawFile.send(test);
+  return test.split('\n')
+}
 
+function App() {
   const [textoCifrado, setTextoCifrado] = useState('')
   const [dicionario, setDicionario] = useState([])
   const [dicCesar, setDicCesar] = useState([])
@@ -55,27 +63,30 @@ function App() {
   const [alfabetos] = useState(gerarAlfabetos("cleopatr"))
   const [mono, setMono] = useState([])
 
+  useEffect(() => {
+    criaDicionarios(readTextFile('dicionario.txt'));
+  }, [])
+
+  function criaDicionarios(palavras) {
+    let palavrasFiltradas = []
+    for (let i = 0; i < palavras.length; i++) {
+      const element = palavras[i];
+      if (element.search(/([bdfghijkmnqsuvwxyz])/g) === -1) palavrasFiltradas.push(element)
+    }
+    setDicionario(palavrasFiltradas);
+    setDicCesar(palavras)
+  }
+
   function lerDicionario(e) {
     let reader = new FileReader()
     reader.readAsBinaryString(e.target.files[0])
-    reader.onload = (e) => {
-      const palavras = e.target.result.split('\n')
-      let palavrasFiltradas = []
-      for (let i = 0; i < palavras.length; i++) {
-        const element = palavras[i];
-        if (element.search(/([bdfghijkmnqsuvwxyz])/g) === -1) palavrasFiltradas.push(element)
-      }
-      setDicionario(palavrasFiltradas);
-      setDicCesar(e.target.result.split('\n'))
-    }
+    reader.onload = (e) => criaDicionarios(e.target.result.split('\n'))
   }
 
   function lerPalavra(e) {
     let reader = new FileReader()
     reader.readAsBinaryString(e.target.files[0])
-    reader.onload = (e) => {
-      setTextoCifrado(e.target.result)
-    }
+    reader.onload = (e) => setTextoCifrado(e.target.result)
   }
 
   function decriptarCesar() {
@@ -173,7 +184,7 @@ function App() {
                 </svg>
               )}
               &nbsp;
-              Importar Palavra Cifrada
+              Importar Cifra
             </Button>
             <input type='file' id='palavraCifrada' onChange={lerPalavra} hidden />
           </Grid>
